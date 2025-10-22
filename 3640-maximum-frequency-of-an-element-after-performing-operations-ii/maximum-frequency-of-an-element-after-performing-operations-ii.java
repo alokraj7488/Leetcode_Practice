@@ -1,22 +1,45 @@
 import java.util.*;
 
 class Solution {
-    private int check(int[] nums, int n, int t, int m) {
-        long nL = n;
-        long tL = t;
-        int l = lowerBound(nums, nL);
-        int h = upperBound(nums, nL);
-        int ll = lowerBound(nums, nL - tL);
-        int hh = upperBound(nums, nL + tL);
-        int res = (hh - h) + (l - ll);
-        return Math.min(m, res) + (h - l);
+    public int maxFrequency(int[] nums, int k, int numOperations) {
+        int n = nums.length;
+        if (n == 0) return 0;
+        Arrays.sort(nums);
+
+        Map<Long, Integer> freq = new HashMap<>();
+        for (int x : nums) freq.put((long)x, freq.getOrDefault((long)x, 0) + 1);
+
+        int ans = 1;
+
+        for (Map.Entry<Long, Integer> entry : freq.entrySet()) {
+            long v = entry.getKey();
+            int already = entry.getValue();
+
+            long lowVal = v - k;
+            long highVal = v + k;
+            int L = lowerBound(nums, lowVal);
+            int R = upperBound(nums, highVal);
+            int totalInRange = R - L;
+            int need = totalInRange - already;
+            int canFix = Math.min(need, numOperations);
+            ans = Math.max(ans, already + canFix);
+        }
+
+        int l = 0;
+        for (int r = 0; r < n; ++r) {
+            while (l <= r && (long)nums[r] - nums[l] > 2L * k) l++;
+            int w = r - l + 1;
+            ans = Math.max(ans, Math.min(w, numOperations));
+        }
+
+        return ans;
     }
 
     private int lowerBound(int[] arr, long target) {
         int l = 0, r = arr.length;
         while (l < r) {
-            int mid = (l + r) / 2;
-            if (arr[mid] < target) l = mid + 1;
+            int mid = (l + r) >>> 1;
+            if ((long)arr[mid] < target) l = mid + 1;
             else r = mid;
         }
         return l;
@@ -25,22 +48,10 @@ class Solution {
     private int upperBound(int[] arr, long target) {
         int l = 0, r = arr.length;
         while (l < r) {
-            int mid = (l + r) / 2;
-            if (arr[mid] <= target) l = mid + 1;
+            int mid = (l + r) >>> 1;
+            if ((long)arr[mid] <= target) l = mid + 1;
             else r = mid;
         }
         return l;
-    }
-
-    public int maxFrequency(int[] nums, int k, int numOperations) {
-        int m = numOperations;
-        Arrays.sort(nums);
-        int ans = 1;
-        for (int i = 0; i < nums.length - 1; i++) {
-            ans = Math.max(ans, check(nums, nums[i], k, m));
-            ans = Math.max(ans, check(nums, nums[i] - k, k, m));
-            ans = Math.max(ans, check(nums, nums[i] + k, k, m));
-        }
-        return ans;
     }
 }
