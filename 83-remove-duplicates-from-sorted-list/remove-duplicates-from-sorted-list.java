@@ -16,11 +16,11 @@ class Solution {
         ListNode temp = head;
         while(temp.next != null) {
             if(temp.val == temp.next.val) {
-                if(temp.next.next == null) {
-                    temp.next = null;
+                if(temp.next.next != null) {
+                    temp.next = temp.next.next;
                 }
                 else {
-                    temp.next = temp.next.next;
+                    temp.next = null;
                 }
             }
             else {
